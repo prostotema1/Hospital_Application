@@ -81,7 +81,7 @@ public class First_Registration{
     private void Close_and_load_previous_window(){
         ((Stage)BackButton.getScene().getWindow()).close();
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/com/example/hospital_application/hello-view.fxml"));
+        loader.setLocation(getClass().getResource("/com.hospital_application/hello-view.fxml"));
         try {
             loader.load();
         }

@@ -28,7 +28,7 @@ public class AppSignedFile {
         Stage stage = (Stage) Return_Button.getScene().getWindow();
         stage.close();
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/com/example/hospital_application/hello-view.fxml"));
+        loader.setLocation(getClass().getResource("/com.hospital_application/hello-view.fxml"));
         try {
             loader.load();
         }
@@ -38,6 +38,6 @@ public class AppSignedFile {
         Parent root = loader.getRoot();
         stage = new Stage();
         stage.setScene(new Scene(root));
-        stage.showAndWait();
+        stage.show();
     }
 }

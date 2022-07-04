@@ -1,7 +1,6 @@
 package com.Hibernate.DBInteractoin;
 
 import com.Hibernate.Factory.Hibernate_Util;
-import com.Hibernate.entity.MyPersonEntity;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
@@ -12,7 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class DBInteraction {
-    private static String user_passpor_number;
+    private static String user_passport_number;
     private static String user_passport_series;
     private static Connection connection;
 
@@ -43,7 +42,7 @@ public class DBInteraction {
         int result = q.executeUpdate();
         tx.commit();
         session.close();
-        user_passpor_number = Passport_Number;
+        user_passport_number = Passport_Number;
         user_passport_series = Passport_series;
     }
 
@@ -62,7 +61,7 @@ public class DBInteraction {
         q.setParameter("fourth",java.sql.Date.valueOf(Date));
         q.setParameter("fith",Phone_us);
         q.setParameter("six",Age_us);
-        q.setParameter("seven", user_passpor_number);
+        q.setParameter("seven", user_passport_number);
         q.setParameter("eight", user_passport_series);
         q.executeUpdate();
         tx.commit();
@@ -75,10 +74,12 @@ public class DBInteraction {
         Query q = session.createQuery("update MyPersonEntity " +
                 "Set gender = :gen" +
                 " WHERE passportNumber = :user_passport_Number AND passportSeries = :user_passport_series");
-        q.setParameter("user_passport_Number",user_passpor_number);
+        q.setParameter("user_passport_Number", user_passport_number);
         q.setParameter("gen",Gender);
         q.setParameter("user_passport_series", user_passport_series);
         q.executeUpdate();
+        tx.commit();
+        session.close();
         String insert_user = "INSERT hospital.users(" + "User_Login,User_Password,Person_id,IS_Doctor)" +
                 " VALUES(?,?,?,?)";
         PreparedStatement preparedStatement = getDbConnection().prepareStatement(insert_user);
@@ -87,24 +88,23 @@ public class DBInteraction {
         preparedStatement.setString(3,get_user_id());
         preparedStatement.setString(4, String.valueOf(Is_Doctor));
         preparedStatement.executeUpdate();
-        tx.commit();
-        session.close();
+
     }
 
     public void Clean_Table() throws SQLException, ClassNotFoundException {
-        Hibernate_Util.getSessionFactory().openSession()
-                .createQuery("delete MyPersonEntity WHERE passportNumber = " + user_passpor_number + " AND " +
-                        "passportSeries = " + user_passport_series, MyPersonEntity.class).executeUpdate();
-
-
-
+        Session session = Hibernate_Util.getSessionFactory().openSession();
+        Transaction tr = session.beginTransaction();
+        session.createQuery("delete MyPersonEntity WHERE passportNumber = " + "'" + user_passport_number + "'"+ " AND " +
+                        "passportSeries = " + "'" + user_passport_series+"'").executeUpdate();
+        tr.commit();
+        session.close();
     }
 
 
 
     private String get_user_id(){
        return Hibernate_Util.getSessionFactory().openSession().createQuery("SELECT persId from MyPersonEntity " +
-               "where  passportSeries = " + user_passport_series + " AND passportNumber = " + user_passpor_number)
+               "where  passportSeries = " + user_passport_series + " AND passportNumber = " + user_passport_number)
                .list().get(0).toString();
 
     }
@@ -120,9 +120,10 @@ public class DBInteraction {
 
     public boolean Check_User(String login, String password) throws SQLException, ClassNotFoundException {
         if(!Check_Login(login)){
-            var q = Hibernate_Util.getSessionFactory().openSession().createQuery("select userPassword from MyUsersEntity " +
-                    "WHERE userLogin = : log");
+            var q = Hibernate_Util.getSessionFactory().openSession().createQuery("select userLogin,userPassword from MyUsersEntity " +
+                    "WHERE userLogin = : log AND userPassword = :pas");
             q.setParameter("log", login);
+            q.setParameter("pas",password);
             var l = q.list();
             return l.size() != 0;
         }
