@@ -13,7 +13,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.sql.SQLException;
 
-public class HelloController {
+public class Greeting_Window_Controller {
 
     @FXML
     private TextField LoginField;
